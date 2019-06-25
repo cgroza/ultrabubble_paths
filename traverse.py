@@ -1,6 +1,4 @@
 import pyvg
-import pyvg.conversion
-
 
 def find_paths_recursive(graph, start, end, path = None, paths = None):
     if path is None:
@@ -16,8 +14,6 @@ def find_paths_recursive(graph, start, end, path = None, paths = None):
     for out_node in g.edges_from_node(start):
         find_paths_recursive(graph, out_node, end, path, paths)
     return paths
-
-
 
 def find_paths_iterative(graph, start, end):
     path = list()
@@ -50,17 +46,29 @@ def find_paths_iterative(graph, start, end):
     return paths
 
 if __name__ == "__main__":
+    import pyvg.conversion
+    import pyvg.alignmentcollection
+    import offsetbasedgraph as ob
+
     print("Loading graph")
-#    g = pyvg.conversion.json_file_to_obg_numpy_graph("data/chr21.json")
+    # g = pyvg.conversion.json_file_to_obg_numpy_graph("data/chr21.json")
     g = pyvg.Graph.from_file("data/chr21.json")
+    obg = ob.Graph.from_file("data/chr21.npy")
+
+    wgs_alignments = pyvg.alignmentcollection.AlignmentCollection.from_vg_json_file("data/chr21_wgs.json", obg)
 
     # load snarls
     print("Loading snarls")
     snarls  = pyvg.Snarls.from_vg_snarls_file("data/snarls")
 
     for snarl in snarls.snarls:
-        if abs(snarl.end.node_id - snarl.start.node_id) > 10:
-            print("Snarl:")
-            print(snarl)
-            snarl_paths = find_paths_iterative(g, snarl.start.node_id, snarl.end.node_id)
-            print(snarl_paths)
+        #if abs(snarl.end.node_id - snarl.start.node_id) > 10:
+        print("Snarl:")
+        print(snarl)
+        snarl_paths = find_paths_iterative(g, snarl.start.node_id, snarl.end.node_id)
+        print(snarl_paths)
+        for path in snarl_paths:
+            print(path)
+            for node in path:
+                alignments = wgs_alignments.get_alignments_on_node(node)
+                print(alignments)
