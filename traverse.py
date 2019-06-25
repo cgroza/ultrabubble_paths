@@ -1,8 +1,13 @@
 import pyvg
+import pyvg.conversion
 
-g = pyvg.Graph.from_file("data/chr21.json")
 
-def find_paths_recursive(graph, start, end, path = [], paths = []):
+def find_paths_recursive(graph, start, end, path = None, paths = None):
+    if path is None:
+        path = []
+    if paths is None:
+        paths = []
+
     path = path.copy()
     path.append(start)
     if start == end:
@@ -28,17 +33,34 @@ def find_paths_iterative(graph, start, end):
         if current_node[0] == end:
             # save the path and revert to last branch point
             paths.append(path.copy())
-            path = path[:path.index(node_stack[-1][0])]
-            continue
+            # need to check if there are still edges to be followed
+            if len(node_stack) > 0 and  len(node_stack[-1]) > 0:
+                path = path[:path.index(node_stack[-1][0])]
+                continue
+            # no edges, break out of loop
+            break
         # branch point
         if len(current_node[1]) > 0:
             # move one out_node from the adjacency list to top of the stack
             next_node = current_node[1].pop()
-            node_stack.append(current_node)
+            # add it back to the stack it still has remaining edges after removing one
+            if len(current_node[1]) > 0:
+                node_stack.append(current_node)
             node_stack.append((next_node, graph.edges_from_node(next_node).copy()))
     return paths
 
-snarl_paths = find_paths_iterative(g, 96657778, 96657792)
-for path in snarl_paths:
-    for node in path:
-        print(node)
+if __name__ == "__main__":
+    print("Loading graph")
+#    g = pyvg.conversion.json_file_to_obg_numpy_graph("data/chr21.json")
+    g = pyvg.Graph.from_file("data/chr21.json")
+
+    # load snarls
+    print("Loading snarls")
+    snarls  = pyvg.Snarls.from_vg_snarls_file("data/snarls")
+
+    for snarl in snarls.snarls:
+        if abs(snarl.end.node_id - snarl.start.node_id) > 10:
+            print("Snarl:")
+            print(snarl)
+            snarl_paths = find_paths_iterative(g, snarl.start.node_id, snarl.end.node_id)
+            print(snarl_paths)
