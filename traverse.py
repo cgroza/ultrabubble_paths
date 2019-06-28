@@ -1,5 +1,13 @@
 import pyvg
 
+def is_ref_interval(path, ref_path):
+    ref_nodes = set(ref_path.nodes_in_interval())
+    for node in path:
+        if node not in ref_nodes:
+            return False
+    return True
+
+
 def find_paths_recursive(graph, start, end, path = None, paths = None):
     if path is None:
         path = []
@@ -50,25 +58,24 @@ if __name__ == "__main__":
     import pyvg.alignmentcollection
     import offsetbasedgraph as ob
 
-    print("Loading graph")
     # g = pyvg.conversion.json_file_to_obg_numpy_graph("data/chr21.json")
     g = pyvg.Graph.from_file("data/chr21.json")
     obg = ob.Graph.from_file("data/chr21.npy")
 
+    # wgs_alignments = pyvg.alignmentcollection.AlignmentCollection.from_vg_json_file("/home/cgroza/scratch/chr21_hc.json", obg)
     wgs_alignments = pyvg.alignmentcollection.AlignmentCollection.from_vg_json_file("data/chr21_wgs.json", obg)
 
     # load snarls
-    print("Loading snarls")
     snarls  = pyvg.Snarls.from_vg_snarls_file("data/snarls")
+    # load chr21 ref path
+    chr21_ref = ob.NumpyIndexedInterval.from_file("data/chr21_linear_pathv2.interval")
 
     for snarl in snarls.snarls:
         #if abs(snarl.end.node_id - snarl.start.node_id) > 10:
-        print("Snarl:")
-        print(snarl)
         snarl_paths = find_paths_iterative(g, snarl.start.node_id, snarl.end.node_id)
-        print(snarl_paths)
         for path in snarl_paths:
-            print(path)
+            reads = 0
             for node in path:
                 alignments = wgs_alignments.get_alignments_on_node(node)
-                print(alignments)
+                reads = reads + len(alignments)
+            print( str(snarl.start.node_id) + "\t" + str(snarl.end.node_id) + "\t" + str(is_ref_interval(path, chr21_ref)) + "\t" + str(reads))
