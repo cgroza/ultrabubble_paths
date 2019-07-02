@@ -57,18 +57,29 @@ if __name__ == "__main__":
     import pyvg.conversion
     import pyvg.alignmentcollection
     import offsetbasedgraph as ob
+    import sys
+
+    # graph json file
+    graph_json = sys.argv[1]
+    # json alignment file
+    aln_json = sys.argv[2]
+    # protobuffer file from vg snarls
+    snarls_file = sys.argv[3]
+    # file to .interval file describing the linear path
+    linear_file = sys.argv[4]
 
     # g = pyvg.conversion.json_file_to_obg_numpy_graph("data/chr21.json")
-    g = pyvg.Graph.from_file("data/chr21.json")
-    obg = ob.Graph.from_file("data/chr21.npy")
+    g = pyvg.Graph.from_file(graph_json)
 
-    # wgs_alignments = pyvg.alignmentcollection.AlignmentCollection.from_vg_json_file("/home/cgroza/scratch/chr21_hc.json", obg)
-    wgs_alignments = pyvg.alignmentcollection.AlignmentCollection.from_vg_json_file("data/chr21_wgs.json", obg)
+    obg = g.get_offset_based_graph()
+    
+    wgs_alignments = pyvg.alignmentcollection.AlignmentCollection.from_vg_json_file(aln_json, obg)
+    # wgs_alignments = pyvg.alignmentcollection.AlignmentCollection.from_vg_json_file("data/chr21_wgs.json", obg)
 
     # load snarls
-    snarls  = pyvg.Snarls.from_vg_snarls_file("data/snarls")
+    snarls  = pyvg.Snarls.from_vg_snarls_file(snarls_file)
     # load chr21 ref path
-    chr21_ref = ob.NumpyIndexedInterval.from_file("data/chr21_linear_pathv2.interval")
+    chr21_ref = ob.NumpyIndexedInterval.from_file(linear_file)
 
     for snarl in snarls.snarls:
         #if abs(snarl.end.node_id - snarl.start.node_id) > 10:
