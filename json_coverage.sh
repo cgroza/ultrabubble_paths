@@ -10,7 +10,7 @@ split -l 50000000 $ALN_JSON --additional-suffix=ALN_FRAG
 
 for file in *ALN_FRAG
 do
-echo << SCRIPT
+sbatch << SCRIPT
 #!/bin/bash
 #SBATCH --cpus-per-task=1
 #SBATCH --time=12:00:00
@@ -21,9 +21,9 @@ echo << SCRIPT
 module unload mugqic/python
 module load python/3.7.0
 
-python3 traverse.py $file $GRAPH_JSON $SNARLS $LINEAR > count_$file.tsv
+python3 traverse.py  $GRAPH_JSON $file $SNARLS $LINEAR_INTERVAL > count_$file.tsv
 SCRIPT
 done
 
-# merge the files with merge.sh
+# merge the files with merge.py
 
