@@ -2,6 +2,10 @@ import pyvg
 
 def is_ref_interval(path, ref_path):
     ref_nodes = set(ref_path.nodes_in_interval())
+    # deletion path
+    if len(path) <= 2:
+        return False
+    # other paths
     for node in path:
         if node not in ref_nodes:
             return False
