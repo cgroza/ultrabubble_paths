@@ -65,17 +65,20 @@ if __name__ == "__main__":
 
     # graph json file
     graph_json = sys.argv[1]
+    # obgraph numpy file
+    obg_numpy = sys.argv[2]
     # json alignment file
-    aln_json = sys.argv[2]
+    aln_json = sys.argv[3]
     # protobuffer file from vg snarls
-    snarls_file = sys.argv[3]
+    snarls_file = sys.argv[4]
     # file to .interval file describing the linear path
-    linear_file = sys.argv[4]
+    linear_file = sys.argv[5]
 
     # g = pyvg.conversion.json_file_to_obg_numpy_graph("data/chr21.json")
     g = pyvg.Graph.from_file(graph_json)
 
-    obg = g.get_offset_based_graph()
+    # obg = g.get_offset_based_graph()
+    obg = ob.Graph.from_file(obg_numpy)
     
     wgs_alignments = pyvg.alignmentcollection.AlignmentCollection.from_vg_json_file(aln_json, obg)
     # wgs_alignments = pyvg.alignmentcollection.AlignmentCollection.from_vg_json_file("data/chr21_wgs.json", obg)
