@@ -12,7 +12,7 @@ def is_ref_interval(path, ref_path):
     return True
 
 
-def find_paths_recursive(graph, start, end, path = None, paths = None):
+def find_paths_recursive(g, start, end, path = None, paths = None):
     if path is None:
         path = []
     if paths is None:
@@ -24,7 +24,7 @@ def find_paths_recursive(graph, start, end, path = None, paths = None):
         paths.append(path)
         return
     for out_node in g.edges_from_node(start):
-        find_paths_recursive(graph, out_node, end, path, paths)
+        find_paths_recursive(g, out_node, end, path, paths)
     return paths
 
 def find_paths_iterative(graph, start, end):
@@ -89,7 +89,9 @@ if __name__ == "__main__":
     chr21_ref = ob.NumpyIndexedInterval.from_file(linear_file)
 
     for snarl in snarls.snarls:
-        #if abs(snarl.end.node_id - snarl.start.node_id) > 10:
+        if abs(snarl.end.node_id - snarl.start.node_id) > 12:
+            print( str(snarl.start.node_id) + "\t" + str(snarl.end.node_id) + "\t" + "large" + "\t" + str(reads))
+            continue
         snarl_paths = find_paths_iterative(g, snarl.start.node_id, snarl.end.node_id)
         for path in snarl_paths:
             reads = 0
